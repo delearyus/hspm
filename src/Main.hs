@@ -15,9 +15,10 @@ import Data.Binary.Put as P
 import Data.Binary as BI
 
 import Core
+import Actions
 
 main :: IO ()
-main = runHSPM returnROM
+main = runHSPM dispatch
 
 {- This part will probably be gotten from ENV eventually -}
 
@@ -27,7 +28,7 @@ persPathTemp = "/home/jamie/.hspm/temp"
 
 {- (end) -}
 
-runHSPM :: PM (Either String String) -> IO ()
+runHSPM :: PM () -> IO ()
 runHSPM pm = do
 
   -- check if our pipe exist. Unfortunately doesn't check if its actually
@@ -40,15 +41,8 @@ runHSPM pm = do
   state <- G.runGet (BI.get :: Get PMState) <$> B.readFile persPath
 
   return ()
-  {-let (out, newstate) = runPM args state pm-}
+  ((), newstate) <- runPM args state pm
 
-  {-print newstate-}
+  print newstate
 
-  {-case out of-}
-    {-Right cout -> putStrLn cout-}
-    {-Left  cmd  -> (forkIO $ writeFile pipePath cmd) >> return ()-}
-
-  {-B.writeFile persPathTemp $ P.runPut $ P.put newstate-}
-  {-renameFile persPathTemp persPath-}
-
-  {-threadDelay 100000 --0.1s-}
+  threadDelay 100000 --0.1s

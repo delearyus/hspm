@@ -27,8 +27,8 @@ data Project = Project {
   _name  :: ByteString,
   _blurb :: ByteString,
   _desc  :: ByteString,
-  _start :: ByteString,
-  _stop  :: ByteString
+  _startCmd :: ByteString,
+  _stopCmd  :: ByteString
 } deriving (Eq, Read, Show, Generic)
 makeLenses ''Project
 
@@ -45,6 +45,13 @@ data PMConfig = PMConfig {
                    }
 makeLenses ''PMConfig
 
+lookupProject :: ProjectList -> Int -> Maybe Project
+lookupProject (Projects _ ps) n = lookup' n ps
+  where lookup' n [] = Nothing
+        lookup' n (p:ps) = if p^.pid == n then Just p else lookup' n ps
+
+getCurrentProject p = p^.current >>= lookupProject p
+
 instance Binary Project
 instance Binary ProjectList
 
@@ -54,8 +61,8 @@ defaultProject = Project {
   _name = "A Poisoned Peace",
   _blurb = "A Murder Mystery",
   _desc = "Written by Jamie Leary and Wren Andrus, first run is on 2/17",
-  _start = "cd ~/Documents/Personal/murdermystery",
-  _stop = "cd ~"
+  _startCmd = "cd ~/Documents/Personal/murdermystery",
+  _stopCmd = "cd ~"
 }
 
 defaultProjectList = Projects Nothing [defaultProject]
